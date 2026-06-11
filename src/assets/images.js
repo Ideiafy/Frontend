@@ -1,18 +1,18 @@
 // Reset
-import Logo from './images/Logo.png';
+import Logo from './images/Logo.webp';
 
 // Tela Inicial
-import Banner1 from './images/Banner1.jpg';
-import Banner2 from './images/Banner2.jpg';
-import Banner3 from './images/Banner3.jpg';
+import Banner1 from './images/Banner1.webp';
+import Banner2 from './images/Banner2.webp';
+import Banner3 from './images/Banner3.webp';
 
 // Login e Registro
-import DeskCard from './images/DeskCard.png';
-import MobiCard from './images/MobiCard.png';
-import PhotoCard from './images/PhotoCard.png';
+import DeskCard from './images/DeskCard.webp';
+import MobiCard from './images/MobiCard.webp';
+import PhotoCard from './images/PhotoCard.webp';
 
 // Desenvolvimento
-import Mascote from '../assets/images/mascote.png'
+import Mascote from '../assets/images/mascote.webp'
 
 const images = {
 
