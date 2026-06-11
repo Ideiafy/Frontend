@@ -70,6 +70,7 @@ const handleSubmit = async (e) => {
 
 
  // consumo api
+<<<<<<< HEAD
   // async function handleSubmit (e) {
   //   e.preventDefault();
   //    // Lógica de login aqui
@@ -81,6 +82,22 @@ const handleSubmit = async (e) => {
   //     navigate('/feed');
   //   }
   //   navigate('/feed');
+=======
+  async function handleSubmit (e) {
+    e.preventDefault();
+     // Lógica de login aqui
+    console.log("Login attempt:", { email, password });
+    const token = await login(email,password);
+    if(token)
+    {
+      localStorage.setItem("token", token);
+      navigate('/feed');
+    }
+    else{
+       navigate('/login');
+    }
+   
+>>>>>>> d310e3b028c2b23d6433b151b287038408d05884
    
   // };
 

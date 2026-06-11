@@ -1,16 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
-import Images from "../../assets/images";
+import React, { useState } from "react";
 import "../../styles/card.css";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import Images from "./../../assets/images";
 
 
 
-export default function Card({ 
-  showFollowButton = false,
-  additionalPosts = [] ,    
-  currentUserId = null, 
-  onDeletePost = null 
-}) {
+export default function Card({ showFollowButton = false, additionalPosts = [] }) {
   const [activeTab, setActiveTab] = useState("posts");
   const [likedPosts, setLikedPosts] = useState(new Set());
   const [commentModal, setCommentModal] = useState({
@@ -19,10 +14,6 @@ export default function Card({
   });
   const [comments, setComments] = useState({});
   const inputRef = useRef(null);
-  const [deleteModal, setDeleteModal] = useState({
-  isOpen: false,
-  postId: null,
-});
 
   const [lightboxImage, setLightboxImage] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -38,7 +29,6 @@ export default function Card({
 
   // Mock data do usuário
   const userData = {
-    id:"1",
     name: "Lucas Alves",
     username: "@lucasalves",
     bio: "Desenvolvedor Full Stack apaixonado por tecnologia e inovação. Criando soluções que fazem a diferença no mundo digital.",
@@ -58,7 +48,6 @@ export default function Card({
     {
       id: 1,
       author: userData,
-      authorId: userData.id,
       content:
         "Acabei de finalizar um projeto incrível usando React e Node.js! A sensação de ver tudo funcionando perfeitamente é indescritível. 🚀",
       media: [
@@ -76,7 +65,6 @@ export default function Card({
     {
       id: 2,
       author: userData,
-      authorId: userData.id,
       content:
         "Compartilhando algumas dicas de UI/UX que aprendi esta semana. O design é muito mais do que apenas fazer algo bonito - é sobre criar experiências memoráveis!",
       media: [
@@ -99,7 +87,6 @@ export default function Card({
     {
       id: 3,
       author: userData,
-      authorId: userData.id,
       content:
         "Hoje foi dia de contribuir com open source! Nada melhor do que retribuir para a comunidade que tanto me ensinou.",
       media: [],
@@ -111,26 +98,6 @@ export default function Card({
   ];
 
   const allPosts = [...additionalPosts, ...userPosts];
-
-  const openDeleteModal = (postId) => {
-  setDeleteModal({ isOpen: true, postId });
-};
-
-const closeDeleteModal = () => {
-  setDeleteModal({ isOpen: false, postId: null });
-};
-
-const confirmDeletePost = () => {
-  if (onDeletePost && deleteModal.postId) {
-    onDeletePost(deleteModal.postId);
-  }
-  closeDeleteModal();
-};
-const canDeletePost = (post) => {
-  return currentUserId && (post.author.id === currentUserId || post.authorId === currentUserId);
-};
-
-
 
   // Ícones SVG
   const TrashIcon = () => (
@@ -162,111 +129,23 @@ const MoreIcon = () => (
   </svg>
 );
   const HeartIcon = () => (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
     </svg>
   );
 
   const CommentIcon = () => (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     </svg>
   );
 
-  const ChevronLeftIcon = () => (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <polyline points="15,18 9,12 15,6" />
-    </svg>
-  );
-
-  const ChevronRightIcon = () => (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <polyline points="9,18 15,12 9,6" />
-    </svg>
-  );
-
-  const CloseIcon = () => (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  );
-
-  const UserPlusIcon = () => (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-      <circle cx="8.5" cy="7" r="4" />
-      <line x1="20" y1="8" x2="20" y2="14" />
-      <line x1="23" y1="11" x2="17" y2="11" />
-    </svg>
-  );
-
-  const UserCheckIcon = () => (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-      <circle cx="8.5" cy="7" r="4" />
-      <polyline points="17,11 19,13 23,9" />
-    </svg>
-  );
-
-  // Funções auxiliares
+  // Função para curtir posts
   const toggleLike = (postId) => {
     setLikedPosts((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(postId)) {
-        newSet.delete(postId);
-      } else {
-        newSet.add(postId);
-      }
+      if (newSet.has(postId)) newSet.delete(postId);
+      else newSet.add(postId);
       return newSet;
     });
   };
@@ -318,7 +197,6 @@ const openCommentModal = (postId) => {
     };
 
     const currentMedia = media[currentIndex];
-    
 
     return (
       <div
@@ -659,45 +537,7 @@ const openCommentModal = (postId) => {
       </div>
     );
   };
-const DeleteConfirmModal = () => {
-  if (!deleteModal.isOpen) return null;
 
-  return (
-    <div
-      className="userProfile-deleteModal"
-      onClick={closeDeleteModal}
-    >
-      <div
-        className="userProfile-deleteModalContent"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="userProfile-deleteModalHeader">
-          <h3>Deletar Post</h3>
-        </div>
-        
-        <div className="userProfile-deleteModalBody">
-          <p>Tem certeza que deseja deletar este post? Esta ação não pode ser desfeita.</p>
-        </div>
-        
-        <div className="userProfile-deleteModalActions">
-          <button
-            className="userProfile-cancelBtn"
-            onClick={closeDeleteModal}
-          >
-            Cancelar
-          </button>
-          <button
-            className="userProfile-confirmDeleteBtn"
-            onClick={confirmDeletePost}
-          >
-            <TrashIcon />
-            Deletar
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
   // Return do componente principal
   return (
     <>
@@ -707,60 +547,41 @@ const DeleteConfirmModal = () => {
             {allPosts.map((post) => (
   <article key={post.id} className="userProfile-postCard">
                 <div className="userProfile-postHeader">
-  <div className="userProfile-postUserAvatar" onClick={UserConta}>
-    <img src={post.author.avatar} alt={post.author.name} />
-    {post.author.isOnline && (
-      <div className="userProfile-onlineStatus"></div>
-    )}
-  </div>
-  <div className="userProfile-postUserInfo">
-    <h4 className="userProfile-postUserName">
-      {post.author.name}
-    </h4>
-    <span className="userProfile-postTime">{post.time}</span>
-  </div>
-  
-  {/* Área dos botões de ação */}
-  <div className="userProfile-postHeaderActions">
-    {showFollowButton && (
-      <button
-        className={`userProfile-followBtn ${
-          isFollowing ? "following" : ""
-        }`}
-        onClick={toggleFollow}
-      >
-        {isFollowing ? <UserCheckIcon /> : <UserPlusIcon />}
-        <span>{isFollowing ? "Seguindo" : "Seguir"}</span>
-      </button>
-    )}
-    
-    {canDeletePost(post) && (
-      <div className="userProfile-postOptions">
-        <button 
-          className="userProfile-optionsBtn"
-          onClick={() => openDeleteModal(post.id)}
-        >
-          <MoreIcon />
-        </button>
-        <div className="userProfile-optionsMenu">
-          <button 
-            className="userProfile-deleteBtn"
-            onClick={() => openDeleteModal(post.id)}
-          >
-            <TrashIcon />
-            <span>Deletar</span>
-          </button>
-        </div>
-      </div>
-    )}
-  </div>
-</div>
-
-                <p className="userProfile-postText">{post.content}</p>
-
-                {post.media.length > 0 && (
-                  <MediaGallery media={post.media} postId={post.id} />
+                  <div className="userProfile-postUserAvatar" onClick={UserConta}>
+                    <img src={post.author.avatar} alt={post.author.name} />
+                    {post.author.isOnline && (
+                      <div className="userProfile-onlineStatus"></div>
+                    )}
+                  </div>
+                  <div className="userProfile-postUserInfo">
+                    <h4 className="userProfile-postUserName">
+                      {post.author.name}
+                    </h4>
+                    <span className="userProfile-postTime">{post.time}</span>
+                  </div>
+                  {showFollowButton && (
+                  <button
+                    className={`userProfile-followBtn ${
+                      isFollowing ? "following" : ""
+                    }`}
+                    onClick={toggleFollow}
+                  >
+                    {isFollowing ? <UserCheckIcon /> : <UserPlusIcon />}
+                    <span>{isFollowing ? "Seguindo" : "Seguir"}</span>
+                  </button>
                 )}
+                </div>
+
+          <p className="userProfile-postText">{post.description}</p>
+
+          {post.media_path && (
+            post.media_type === "image" ? (
+              <img src={post.media_path} alt={post.title} className="postImage" />
+            ) : (
+               <img src="./../../assets/images/banner1.jpg" alt={post.title} className="postImage" />
+              //<video src={post.media_path} className="userProfile-postVideo" controls />
+            )
+          )}
 
                 <div className="userProfile-postActions">
                   <button
@@ -816,7 +637,6 @@ const DeleteConfirmModal = () => {
       {/* Modais */}
       <Lightbox />
       <CommentModal />
-      <DeleteConfirmModal />
     </>
   );
 }
