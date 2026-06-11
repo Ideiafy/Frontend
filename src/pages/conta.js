@@ -5,9 +5,7 @@ import Sidebar from "./componentes/sidebar";
 import MobileHeader from "./componentes/mobileHeader";
 import { useNavigate } from 'react-router-dom';
 import Card from '../pages/componentes/card';
-import logged from "./../services/users/logged"
-import getToken from "./../services/auth/token"
-import indexPosts from "../services/users/posts";
+
 
 export default function UserProfile({ userId = 1 }) {
   const [tema, setTema] = useState("escuro");
@@ -19,20 +17,10 @@ export default function UserProfile({ userId = 1 }) {
   const [commentModal, setCommentModal] = useState({ isOpen: false, postId: null });
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState('');
-  const [user,setUser] = useState(null)
   const navigate = useNavigate();
 
-   async function fetchUserData(token)
-    {
-      const response = await logged(token)
-      setUser(response.data)
-    }
 
-  useEffect(() => {
-    const token = findToken()
-    fetchUserData(token)
-  },[])
-
+ 
   const toggleTema = () => {
     setTema((prev) => (prev === "escuro" ? "claro" : "escuro"));
   };
@@ -246,7 +234,7 @@ export default function UserProfile({ userId = 1 }) {
         <div className="userProfile-header">
   {/* Avatar centralizado no topo */}
   <div className="userProfile-avatarContainer">
-    <img src={userData.avatar} alt={ user?.name || "Loading..."} className="userProfile-avatar" />
+    <img src={userData.avatar} alt={userData.name} className="userProfile-avatar" />
     {userData.isOnline && <div className="userProfile-onlineStatus"></div>}
   </div>
   
@@ -254,9 +242,9 @@ export default function UserProfile({ userId = 1 }) {
     <div className="userProfile-details">
       <div className="userProfile-nameSection">
         <h1 className="userProfile-name">
-          { user?.name || "Loading..."}
+          {userData.name}
         </h1>
-        <span className="userProfile-username">{ user?.username || "Loading..."}</span>
+        <span className="userProfile-username">{userData.username}</span>
       </div>
       
       <button 

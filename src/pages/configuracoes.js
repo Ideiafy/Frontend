@@ -1,19 +1,15 @@
-import React, { useState,useEffect } from "react";
+import React, { useState} from "react";
 import Sidebar from "./componentes/sidebar";
 import Images from '../assets/images';
 import { useNavigate } from "react-router-dom";
 import "../styles/configuracoes.css";
 import MobileHeader from "./componentes/mobileHeader";
-import logged from "./../services/users/logged"
-import findToken from "./../services/auth/token"
-import logout from "./../services/auth/logout"
+
 
 export default function MinhaContaPage() {
   const [tema, setTema] = useState("escuro");
-  const [activeNavItem, setActiveNavItem] = useState("minha-conta");
+
   const [activeTab, setActiveTab] = useState("pessoais");
-  const [showSearchModal, setShowSearchModal] = useState(false);
-  const [user,setUser] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState({
   isOpen: false,
   imageUrl: null,
@@ -36,10 +32,17 @@ const [confirmationModal, setConfirmationModal] = useState({
     username: "lucasalves",
     bio: "Designer e desenvolvedor apaixonado por criar experiências incríveis.",
     joinDate: "Janeiro 2024",
-    avatar: Images.PhotoCard
+    avatar:
+  localStorage.getItem("userAvatar") ||
+  Images.PhotoCard ||
+  "/default-avatar.jpg",
   });
 
-
+const [user] = useState({
+  name: "Lucas Alves",
+  username: "lucasalves",
+  avatar: Images.PhotoCard
+});
   const [formData, setFormData] = useState({
     name: userProfile.name,
     email: userProfile.email,
@@ -72,9 +75,7 @@ const [confirmationModal, setConfirmationModal] = useState({
     setTema(prev => prev === "escuro" ? "claro" : "escuro");
   };
 
-  const handleNavigation = (item) => {
-    setActiveNavItem(item);
-  };
+
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -142,24 +143,21 @@ const handleLogout = () => {
     isOpen: true,
     type: 'logout',
     title: 'Sair da Conta',
-    message: 'Tem certeza que deseja sair da sua conta? Você precisará fazer login novamente para acessar.',
+    message: 'Tem certeza que deseja sair da sua conta?',
     confirmText: 'Sair',
-    onConfirm: async () => {
-      try {
-        const token = findToken();
-        const response = await logout(token);
+    onConfirm: () => {
+      console.log("Logout realizado");
+      localStorage.clear();
+      navigate('/login');
 
-        if(response.status === 200) {
-          console.log("Logout realizado");
-          localStorage.clear();
-          navigate('/login');
-        }
-      } catch (error) {
-        console.error("Erro ao fazer logout:", error);
-        alert("Erro ao sair da conta. Tente novamente.");
-      } finally {
-        setConfirmationModal({ isOpen: false, type: '', title: '', message: '', confirmText: '', onConfirm: null });
-      }
+      setConfirmationModal({
+        isOpen: false,
+        type: '',
+        title: '',
+        message: '',
+        confirmText: '',
+        onConfirm: null
+      });
     }
   });
 };
@@ -183,31 +181,23 @@ const handleSaveProfile = () => {
     console.log("Password changed");
   };
 
-  const confirmAvatarChange = () => {
-  // Aplicar a nova imagem
+const confirmAvatarChange = () => {
+  localStorage.setItem(
+    "userAvatar",
+    avatarPreview.imageUrl
+  );
+
   setUserProfile(prev => ({
     ...prev,
     avatar: avatarPreview.imageUrl
   }));
-  
-  setUser(prev => ({
-    ...prev,
-    avatar: avatarPreview.imageUrl
-  }));
-  
-  // Fechar o modal
+
   setAvatarPreview({
     isOpen: false,
     imageUrl: null,
     file: null
   });
-  
-  console.log("Avatar atualizado com sucesso!");
-  
-  // AQUI VOCÊ PODE ADICIONAR A LÓGICA PARA ENVIAR PARA O SERVIDOR
-  // uploadAvatarToServer(avatarPreview.file);
 };
-
 const cancelAvatarChange = () => {
   setAvatarPreview({
     isOpen: false,
@@ -521,9 +511,8 @@ const tabs = [
       <Sidebar 
         tema={tema}
         toggleTema={toggleTema}
-        onSearchModal={() => setShowSearchModal(true)}
+        onSearchModal={() => {}}
         activeItem={'settings'}
-        onNavigate={handleNavigation}
       />
       
       <main className="modern-main">

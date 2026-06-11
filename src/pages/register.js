@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Images from "../assets/images";
 import "../styles/register.css";
-import store from "./../services/users/store"
 
 export default function Register() {
   const [tema, setTema] = useState("escuro");

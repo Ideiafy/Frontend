@@ -1,8 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "../../styles/card.css";
 import { useNavigate } from "react-router-dom";
 import Images from "./../../assets/images";
-
+import {
+  ChevronLeft,
+  ChevronRight,
+  X,
+  UserCheck,
+  UserPlus
+} from "lucide-react";
 
 
 export default function Card({ showFollowButton = false, additionalPosts = [] }) {
@@ -232,10 +238,10 @@ const openCommentModal = (postId) => {
         {media.length > 1 && (
           <>
             <button className="userProfile-mediaPrev" onClick={prevMedia}>
-              <ChevronLeftIcon />
+              <ChevronLeft />
             </button>
             <button className="userProfile-mediaNext" onClick={nextMedia}>
-              <ChevronRightIcon />
+              <ChevronRight />
             </button>
             <div className="userProfile-mediaIndicators">
               {media.map((_, index) => (
@@ -318,7 +324,7 @@ const openCommentModal = (postId) => {
             className="userProfile-lightboxClose"
             onClick={() => setLightboxImage(null)}
           >
-            <CloseIcon />
+            <X />
           </button>
 
           {currentMedia.type === "image" ? (
@@ -342,10 +348,10 @@ const openCommentModal = (postId) => {
           {media.length > 1 && (
             <>
               <button className="userProfile-lightboxPrev" onClick={prevMedia}>
-                <ChevronLeftIcon />
+                <ChevronLeft />
               </button>
               <button className="userProfile-lightboxNext" onClick={nextMedia}>
-                <ChevronRightIcon />
+                <ChevronRight />
               </button>
               <div className="userProfile-lightboxIndicators">
                 {media.map((_, index) => (
@@ -423,7 +429,7 @@ const openCommentModal = (postId) => {
               className="userProfile-commentModalClose"
               onClick={() => setCommentModal({ isOpen: false, postId: null })}
             >
-              <CloseIcon />
+              <X />
             </button>
           </div>
 
@@ -454,7 +460,7 @@ const openCommentModal = (postId) => {
                     }`}
                     onClick={toggleFollow}
                   >
-                    {isFollowing ? <UserCheckIcon /> : <UserPlusIcon />}
+                    {isFollowing ? <UserCheck /> : <UserPlus />}
                     <span>{isFollowing ? "Seguindo" : "Seguir"}</span>
                   </button>
                 )}
@@ -566,7 +572,7 @@ const openCommentModal = (postId) => {
                     }`}
                     onClick={toggleFollow}
                   >
-                    {isFollowing ? <UserCheckIcon /> : <UserPlusIcon />}
+                    {isFollowing ? <UserCheck /> : <UserPlus />}
                     <span>{isFollowing ? "Seguindo" : "Seguir"}</span>
                   </button>
                 )}

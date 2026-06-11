@@ -5,10 +5,6 @@ import Sidebar from "./componentes/sidebar";
 import MobileHeader from "./componentes/mobileHeader";
 import Card from "./componentes/card";
 import { useNavigate } from "react-router-dom";
-import logged from "./../services/users/logged"
-import index from "../services/posts/index";
-import getToken from "./../services/auth/token";
-import store from "../services/posts/store";
 
 export default function Feed({ userId = 1 }) {
   const [tema, setTema] = useState("escuro");
@@ -19,61 +15,14 @@ export default function Feed({ userId = 1 }) {
   const [feedPosts, setFeedPosts] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
   const [showTextAlert, setShowTextAlert] = useState(false);
-  const [user, setUser] = useState(null)
-  const [Posts, setPosts] = useState([]);
 
   const navigate = useNavigate();
 
-<<<<<<< HEAD
-    // async function fetchUserData(token)
-    // {
-    //   const response = await logged(token)
-    //   setUser(response.data)
-    // }
-    // useEffect(() => {
 
-    //   const token = findToken();
-    //   console.log(token)
-    //   if (!token) {
-    //     return navigate("/login");
-    //   } 
-    //     fetchUserData(token);
-      
 
-    //   //localStorage.clear();
+ 
+ 
 
-    // }, []);
-=======
-
-  async function fetchUserData(token) {
-    const response = await logged(token)
-    setUser(response.data)
-  }
-
-  async function fetchPostsData(token) {
-    const response = await index(token);
-    return response;
-
-  }
-  useEffect(() => {
-
-    const fetchData = async () => {
-      const token = await getToken();
-      console.log(token)
-      if (!token) {
-        return navigate("/login");
-      }
-
-      await fetchUserData(token);
-      const posts = await fetchPostsData(token);
-      console.log(posts["data:"]);
-      setPosts(posts["data:"]);
-    };
-
-    fetchData();
-
-  }, []);
->>>>>>> d310e3b028c2b23d6433b151b287038408d05884
 
 
 
@@ -175,32 +124,13 @@ export default function Feed({ userId = 1 }) {
     </svg>
   );
 
-<<<<<<< HEAD
-  // ADICIONADO: Ícone de câmera igual ao do conta.js
-  const CameraIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-      <circle cx="12" cy="13" r="4"/>
-    </svg>
-  );
-=======
+
   async function handlePublishPost() {
-    if (!postText.trim()) {
-      setShowTextAlert(true);
-      return;
-    }
->>>>>>> d310e3b028c2b23d6433b151b287038408d05884
+    console.log("Post criado:", postText);
+    console.log("Arquivo:", selectedFiles);
 
-
-    // Criar o novo post
-    const token = await getToken();
-    const formData = new FormData();
-    formData.append("description", postText);
-    formData.append("media_", selectedFiles[0]);
-
-
-   const response =  await store(formData,token)
-
+    setPostText("");
+    setSelectedFiles([]);
   };
 
   return (
@@ -220,36 +150,7 @@ export default function Feed({ userId = 1 }) {
       />
 
       <div className="create-post-container">
-<<<<<<< HEAD
-  <div className="create-post-card">
-    {/* Header do post - MODIFICADO para incluir placeholder */}
-    <div className="create-post-header">
-      <div className="feed-avatar-container">
-        {user?.avatar ? (
-          <img 
-            src={user.avatar} 
-            alt={user?.name || "Loading..."} 
-            className="user-avatar"
-            onError={(e) => {
-              // Se a imagem falhar, esconde a img e mostra o ícone
-              e.target.style.display = 'none';
-              e.target.nextElementSibling.style.display = 'flex';
-            }}
-          />
-        ) : null}
-        <div 
-          className={`feed-avatar-placeholder ${!user?.avatar ? 'show' : ''}`}
-          style={{ display: !user?.avatar ? 'flex' : 'none' }}
-        >
-          <CameraIcon />
-        </div>
-      </div>
-      <div className="user-info">
-        <span className="user-name">{ user?.name || "Loading..."}</span>
-        <span className="visibility-text">Público</span>
-      </div>
-    </div>
-=======
+
         <div className="create-post-card">
           {/* Header do post */}
           <div className="create-post-header">
@@ -258,11 +159,11 @@ export default function Feed({ userId = 1 }) {
               className="user-avatar"
             />
             <div className="user-info">
-              <span className="user-name">{user?.name || "Loading..."}</span>
+              <span className="user-name">Gustavo</span>
               <span className="visibility-text">Público</span>
             </div>
           </div>
->>>>>>> d310e3b028c2b23d6433b151b287038408d05884
+
 
           {/* Área de texto */}
           <div className="create-post-content">
@@ -429,7 +330,7 @@ export default function Feed({ userId = 1 }) {
 
         {/* Feed de posts */}
 
-        <Card additionalPosts={Posts} />
+        <Card />
       </main>
 
     </div>
