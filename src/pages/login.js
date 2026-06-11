@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import Images from "../assets/images";
 import "../styles/login.css";
 
-
 export default function Login() {
   const [tema, setTema] = useState("escuro");
   const [email, setEmail] = useState("");
@@ -11,92 +10,52 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("error"); 
+  const [alertType, setAlertType] = useState("error");
   const navigate = useNavigate();
 
- 
-  const toggleIcon = () => {
-    setTema((prev) => (prev === "escuro" ? "claro" : "escuro"));
-  };
+  const toggleTema = () => setTema((prev) => (prev === "escuro" ? "claro" : "escuro"));
 
   const showAlertMessage = (message, type = "error", duration = 4000) => {
-  setAlertMessage(message);
-  setAlertType(type);
-  setShowAlert(true);
-  
-  setTimeout(() => {
-    setShowAlert(false);
-  }, duration);
-};
+    setAlertMessage(message);
+    setAlertType(type);
+    setShowAlert(true);
+    setTimeout(() => setShowAlert(false), duration);
+  };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  
-  // Validações básicas
-  if (!email || !password) {
-    showAlertMessage("Por favor, preencha todos os campos.", "warning");
-    return;
-  }
-  
-  if (!email.includes("@")) {
-    showAlertMessage("Por favor, insira um email válido.", "error");
-    return;
-  }
-  
-  try {
-    console.log("Login attempt:", { email, password });
-    // const token = await login(email, password);
-    
-    // Simulação de erro (remover quando integrar com API real)
-    if (email !== "admin@teste.com" || password !== "123456") {
-      throw new Error("Email ou senha incorretos");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!email || !password) {
+      showAlertMessage("Por favor, preencha todos os campos.", "warning");
+      return;
     }
-    
-    // Se chegou até aqui, login foi bem-sucedido
-    showAlertMessage("Login realizado com sucesso! Redirecionando...", "success", 2000);
-    
-    setTimeout(() => {
-      navigate('/feed');
-    }, 2000);
-    
-  } catch (error) {
-    showAlertMessage(
-      error.message || "Erro ao fazer login. Tente novamente.", 
-      "error"
-    );
-  }
-};
+    if (!email.includes("@")) {
+      showAlertMessage("Por favor, insira um email válido.", "error");
+      return;
+    }
 
+    try {
+      console.log("Login attempt:", { email, password });
 
- // consumo api
+      if (email !== "admin@teste.com" || password !== "123456") {
+        throw new Error("Email ou senha incorretos");
+      }
 
-  // async function handleSubmit (e) {
-  //   e.preventDefault();
-  //    // Lógica de login aqui
-  //   console.log("Login attempt:", { email, password });
-  //   const token = await login(email,password);
-  //   if(token)
-  //   {
-  //     localStorage.setItem("token", token);
-  //     navigate('/feed');
-  //   }
-  //   navigate('/feed');
-
-
+      showAlertMessage("Login realizado com sucesso! Redirecionando...", "success", 2000);
+      setTimeout(() => navigate("/feed"), 2000);
+    } catch (error) {
+      showAlertMessage(error.message || "Erro ao fazer login. Tente novamente.", "error");
+    }
+  };
 
   const handleSocialLogin = (provider) => {
     // console.log(`Login with ${provider}`);
   };
 
-  const handleGoBack = () => {
-    navigate("/");
-  };
+  const handleGoBack = () => navigate("/");
+  const handleGoToRegister = () => navigate("/cadastro");
 
-  const handleGoToRegister = () => {
-    navigate("/cadastro");
-  };
-
-  // Ícones SVG
+  // ── Ícones ──────────────────────────────────────────────────────────────
   const SunIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z" />
@@ -105,37 +64,19 @@ const handleSubmit = async (e) => {
 
   const MoonIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-      <path
-        fillRule="evenodd"
-        d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"
-        clipRule="evenodd"
-      />
+      <path fillRule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clipRule="evenodd" />
     </svg>
   );
 
   const EyeIcon = () => (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
       <circle cx="12" cy="12" r="3" />
     </svg>
   );
 
   const EyeOffIcon = () => (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
       <line x1="1" y1="1" x2="23" y2="23" />
     </svg>
@@ -143,22 +84,10 @@ const handleSubmit = async (e) => {
 
   const GoogleIcon = () => (
     <svg width="20" height="20" viewBox="0 0 24 24">
-      <path
-        fill="#4285F4"
-        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-      />
-      <path
-        fill="#EA4335"
-        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-      />
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
     </svg>
   );
 
@@ -175,281 +104,221 @@ const handleSubmit = async (e) => {
   );
 
   const ArrowLeftIcon = () => (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <path d="M19 12H5" />
-      <path d="M12 19l-7-7 7-7" />
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 12H5M12 19l-7-7 7-7" />
     </svg>
   );
-  const AlertMessage = () => (
-  <div className={`alertOverlay ${showAlert ? 'show' : ''}`}>
-    <div className={`alertMessage ${alertType}`}>
-      <div className="alertIcon">
-        {alertType === "error" && (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="15" y1="9" x2="9" y2="15"/>
-            <line x1="9" y1="9" x2="15" y2="15"/>
-          </svg>
-        )}
-        {alertType === "success" && (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-            <polyline points="22,4 12,14.01 9,11.01"/>
-          </svg>
-        )}
-        {alertType === "warning" && (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
-        )}
-      </div>
-      <span className="alertText">{alertMessage}</span>
-      <button 
-        className="alertClose"
-        onClick={() => setShowAlert(false)}
-        aria-label="Fechar alerta"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <line x1="18" y1="6" x2="6" y2="18"/>
-          <line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-    </div>
-  </div>
-);
 
-  return (
-    <div
-      id="Login"
-      className={tema === "escuro" ? "escuro-fundo-cinza" : "claro-fundo-bege"}
-    >
-      <AlertMessage />
-      {/* Botão de Voltar */}
-      <div className="iconPlaceVoltar">
-        <button
-          onClick={handleGoBack}
-          className="voltarIcon icon"
-          aria-label="Voltar para página inicial"
-          title="Voltar para página inicial"
-        >
-          <ArrowLeftIcon />
-          <span className="voltarText">Voltar</span>
+  const AlertMessage = () => (
+    <div className={`alertOverlay ${showAlert ? "show" : ""}`}>
+      <div className={`alertMessage ${alertType}`}>
+        <div className="alertIcon">
+          {alertType === "error" && (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+          )}
+          {alertType === "success" && (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22,4 12,14.01 9,11.01" />
+            </svg>
+          )}
+          {alertType === "warning" && (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          )}
+        </div>
+        <span className="alertText">{alertMessage}</span>
+        <button className="alertClose" onClick={() => setShowAlert(false)} aria-label="Fechar alerta">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
       </div>
-      {/* Toggle de tema */}
-      <div className="iconPlaceTema">
+    </div>
+  );
+
+  const temaClass = tema === "escuro" ? "escuro-fundo-cinza" : "claro-fundo-bege";
+
+  return (
+    <div id="Login" className={temaClass}>
+      <AlertMessage />
+
+      {/* Fundo decorativo */}
+      <div className="bg-decor" aria-hidden="true">
+        <div className="grid-overlay" />
+      </div>
+
+      {/* Topbar */}
+      <header className="auth-topbar">
+        <button onClick={handleGoBack} className="button btn-ghost auth-back" aria-label="Voltar para página inicial">
+          <ArrowLeftIcon />
+          <span>Voltar</span>
+        </button>
+
+        <div className="auth-logo">
+          <img src={Images.Logo} alt="Logo Ideiafy" className="auth-logo-img" />
+          <span className="auth-logo-text">
+            <span className={tema === "escuro" ? "claro-color" : "escuro-color"}>Ideia</span>
+            <span className="fy">fy</span>
+          </span>
+        </div>
+
         <button
-          className="temaIcon icon"
-          onClick={toggleIcon}
-          aria-label="Alternar tema"
-          title={
-            tema === "escuro"
-              ? "Mudar para tema claro"
-              : "Mudar para tema escuro"
-          }
+          className="temaIcon"
+          onClick={toggleTema}
+          aria-label={tema === "escuro" ? "Mudar para tema claro" : "Mudar para tema escuro"}
+          title={tema === "escuro" ? "Mudar para tema claro" : "Mudar para tema escuro"}
         >
           {tema === "escuro" ? <SunIcon /> : <MoonIcon />}
         </button>
-      </div>
+      </header>
 
-      {/* Área do formulário */}
-      <div className="loginContent">
-        <div className="loginHeader">
-          <div className="logoIcon">
-            <img src={Images.Logo} alt="Logo Ideafy" loading="eager" />
+      {/* Conteúdo */}
+      <div className="auth-wrapper">
+        {/* Form */}
+        <div className="auth-content fade-in">
+          <div className="auth-badge">
+            <span className="badge-dot" aria-hidden="true" />
+            Bem-vindo de volta
           </div>
-          <h1 className="loginTitle">Login</h1>
-          <p className="loginSubtitle">
-            Bem-vindo de volta ao Ideiafy. Suas ideias têm o poder de transformar o mundo!
+
+          <h1 className="auth-title">
+            Entre na sua <span className="gradient-text">conta</span>
+          </h1>
+          <p className="auth-subtitle">
+            Suas ideias têm o poder de transformar o mundo. Acesse e continue construindo.
           </p>
+
+          <form className="auth-form" onSubmit={handleSubmit}>
+            <div className="inputGroup">
+              <label htmlFor="email" className="inputLabel">Email</label>
+              <div className="inputWrapper">
+                <svg className="inputIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="teste@gmail.com"
+                  className="loginInput"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="inputGroup">
+              <label htmlFor="password" className="inputLabel">Senha</label>
+              <div className="inputWrapper">
+                <svg className="inputIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <circle cx="12" cy="16" r="1" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="loginInput"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="passwordToggle"
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" className="button btn-primary btn-lg auth-submit">
+              Entrar
+            </button>
+
+            <div className="divider">
+              <span className="dividerText">ou continue com</span>
+            </div>
+
+            <div className="socialButtons">
+              <button type="button" onClick={() => handleSocialLogin("google")} className="socialButton" aria-label="Entrar com Google">
+                <GoogleIcon />
+              </button>
+              <button type="button" onClick={() => handleSocialLogin("linkedin")} className="socialButton" aria-label="Entrar com LinkedIn">
+                <LinkedInIcon />
+              </button>
+              <button type="button" onClick={() => handleSocialLogin("github")} className="socialButton githubButton" aria-label="Entrar com GitHub">
+                <GitHubIcon />
+              </button>
+            </div>
+
+            <div className="registerLink">
+              <p className="registerText">
+                Não tem uma conta?
+                <button type="button" onClick={handleGoToRegister} className="registerButton">
+                  Cadastre-se aqui
+                </button>
+              </p>
+            </div>
+          </form>
         </div>
-{/* } */}
-        <form className="loginForm" onSubmit={handleSubmit}> 
-          <div className="inputGroup">
-            <label htmlFor="email" className="inputLabel">
-              Email
-            </label>
-            <div className="inputWrapper">
-              <svg
-                className="inputIcon"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                <polyline points="22,6 12,13 2,6" />
-              </svg>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="teste@gmail.com"
-                className="loginInput"
-                required
-              />
+
+        {/* Visual */}
+        <div className="auth-visual fade-in">
+          <div className="window">
+            <div className="window-bar">
+              <span className="window-dot dot-red" aria-hidden="true" />
+              <span className="window-dot dot-yellow" aria-hidden="true" />
+              <span className="window-dot dot-green" aria-hidden="true" />
+              <span className="window-path">sessao.json</span>
+            </div>
+            <div className="window-body">
+              <pre><code>
+<span className="code-key">{"{"}</span>{"\n"}
+<span className="code-indent">  </span><span className="code-prop">"usuario"</span><span className="code-punct">: </span><span className="code-string">"@marina.dev"</span><span className="code-punct">,</span>{"\n"}
+<span className="code-indent">  </span><span className="code-prop">"projetos_ativos"</span><span className="code-punct">: </span><span className="code-number">3</span><span className="code-punct">,</span>{"\n"}
+<span className="code-indent">  </span><span className="code-prop">"colaboracoes"</span><span className="code-punct">: </span><span className="code-number">12</span><span className="code-punct">,</span>{"\n"}
+<span className="code-indent">  </span><span className="code-prop">"status"</span><span className="code-punct">: </span><span className="code-string">"online"</span>{"\n"}
+<span className="code-key">{"}"}</span>
+              </code></pre>
+              <div className="window-cursor-line">
+                <span className="window-prompt">$</span>
+                <span className="typing-text">ideiafy login --continuar</span>
+                <span className="cursor-blink" aria-hidden="true">▌</span>
+              </div>
             </div>
           </div>
 
-          <div className="inputGroup">
-            <label htmlFor="password" className="inputLabel">
-              Password
-            </label>
-            <div className="inputWrapper">
-              <svg
-                className="inputIcon"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <circle cx="12" cy="16" r="1" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="loginInput"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="passwordToggle"
-                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-              >
-                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-              </button>
+          <div className="auth-feature-card">
+            <div className="auth-feature-top">
+              <div className="feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M2 21v-2a4 4 0 014-4h6a4 4 0 014 4v2" />
+                  <path d="M16 3.13a4 4 0 010 7.75M22 21v-2a4 4 0 00-3-3.87" />
+                </svg>
+              </div>
+              <span className="feature-tag">Comunidade ativa</span>
             </div>
-          </div>
-
-          <button type="submit" className="loginButton">
-            Entrar
-          </button>
-
-          <div className="divider">
-            <span className="dividerText">ou</span>
-          </div>
-
-          <div className="socialButtons">
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("google")}
-              className="socialButton googleButton"
-              aria-label="Entrar com Google"
-            >
-              <GoogleIcon />
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("linkedin")}
-              className="socialButton linkedinButton"
-              aria-label="Entrar com LinkedIn"
-            >
-              <LinkedInIcon />
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("github")}
-              className="socialButton githubButton"
-              aria-label="Entrar com GitHub"
-            >
-              <GitHubIcon />
-            </button>
-          </div>
-
-          {/* Link para cadastro */}
-          <div className="registerLink">
-            <p className="registerText">
-              Não tem uma conta?
-              <button onClick={handleGoToRegister} className="registerButton">
-                Cadastre-se aqui
-              </button>
+            <p className="auth-feature-text">
+              Mais de uma centena de criadores trocando ideias, feedbacks e colaborações todos os dias.
             </p>
           </div>
-        </form>
-      </div>
 
-      {/* Card lateral */}
-      <div className="profileCard">
-        <div className="profileContent">
-          <div className="profileHeader">
-            <div className="profileAvatar">
-              <img
-                src={Images.PhotoCard}
-                alt="Lucas Alves"
-                className="avatarImage"
-              />
-              <div className="onlineStatus"></div>
-            </div>
-            <div className="profileInfo">
-              <h3 className="profileName">Lucas Alves</h3>
-              <p className="profileTime">1h</p>
-            </div>
-          </div>
-
-          <p className="profileDescription">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
-          </p>
-
-          <div className="profileImage">
-            <img
-              src={Images.DeskCard}
-              alt="Profile content"
-              className="contentImage"
-            />
-            <div className="imageOverlay">
-              <span className="overlayText">Vendido</span>
-            </div>
-          </div>
-
-          <div className="profileActions">
-            <button className="actionButton likeButton">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
-            </button>
-            <button className="actionButton commentButton">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-            </button>
-            <button className="actionButton primaryButton">Comprar</button>
-            <button className="actionButton secondaryButton">Contribuir</button>
-          </div>
+          <div className="glow-ring" aria-hidden="true" />
         </div>
       </div>
     </div>

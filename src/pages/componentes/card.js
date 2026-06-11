@@ -2,257 +2,86 @@ import React, { useState, useRef, useEffect } from "react";
 import "../../styles/card.css";
 import { useNavigate } from "react-router-dom";
 import Images from "./../../assets/images";
-import {
-  ChevronLeft,
-  ChevronRight,
-  X,
-  UserCheck,
-  UserPlus
-} from "lucide-react";
-
+import { ChevronLeft, ChevronRight, X, UserCheck, UserPlus, Bookmark, Share2 } from "lucide-react";
 
 export default function Card({ showFollowButton = false, additionalPosts = [] }) {
-  const [activeTab, setActiveTab] = useState("posts");
-  const [likedPosts, setLikedPosts] = useState(new Set());
-  const [commentModal, setCommentModal] = useState({
-    isOpen: false,
-    postId: null,
-  });
+  const [liked,    setLiked]    = useState(new Set());
+  const [saved,    setSaved]    = useState(new Set());
+  const [commentModal, setCM]   = useState({ open: false, id: null });
   const [comments, setComments] = useState({});
-  const inputRef = useRef(null);
-
-  const [lightboxImage, setLightboxImage] = useState(null);
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [lightbox, setLightbox] = useState(null);
+  const [following, setFollowing] = useState(false);
+  const [toast, setToast]       = useState(null);
   const navigate = useNavigate();
 
-  const UserConta=() =>{
-    navigate('/UserConta');
-  }
+  const goProfile  = () => navigate("/UserConta");
+  const togFollow  = () => setFollowing(p => !p);
+  const openCM     = (id) => setCM({ open: true,  id });
+  const closeCM    = ()   => setCM({ open: false, id: null });
 
-  const toggleFollow = () => {
-    setIsFollowing((prev) => !prev);
-  };
-
-  // Mock data do usuário
   const userData = {
-    name: "Lucas Alves",
-    username: "@lucasalves",
-    bio: "Desenvolvedor Full Stack apaixonado por tecnologia e inovação. Criando soluções que fazem a diferença no mundo digital.",
+    name: "Lucas Alves", username: "@lucasalves",
     avatar: Images.PhotoCard || "/default-avatar.jpg",
-    coverImage: Images.Banner3 || "/default-cover.jpg",
-    joinDate: "Março 2022",
-    isOnline: true,
-    verified: true,
-    stats: {
-      posts: 124,
-      followers: 2847,
-      following: 892,
-    },
+    isOnline: true, role: "Full Stack Dev",
   };
 
-  const userPosts = [
-    {
-      id: 1,
-      author: userData,
-      content:
-        "Acabei de finalizar um projeto incrível usando React e Node.js! A sensação de ver tudo funcionando perfeitamente é indescritível. 🚀",
+  const posts = [
+    { id: 1, author: userData,
+      content: "Acabei de finalizar um projeto incrível usando React e Node.js! A sensação de ver tudo funcionando perfeitamente é indescritível 🚀",
+      media: [{ type:"image", url: Images.DeskCard||Images.PhotoCard, alt:"Projeto" }],
+      likes: 45, comments: 12, time: "2h", tag: "Projeto" },
+    { id: 2, author: userData,
+      content: "Compartilhando algumas dicas de UI/UX que aprendi essa semana. Design é muito mais do que fazer algo bonito — é sobre criar experiências memoráveis.",
       media: [
-        {
-          type: "image",
-          url: Images.DeskCard || "/default-post.jpg",
-          alt: "Projeto finalizado",
-        },
+        { type:"image", url: Images.Banner2||Images.PhotoCard, alt:"UI/UX" },
+        { type:"image", url: Images.Banner1||Images.PhotoCard, alt:"Design" },
       ],
-      likes: 45,
-      comments: 12,
-      time: "2h",
-      isLiked: false,
-    },
-    {
-      id: 2,
-      author: userData,
-      content:
-        "Compartilhando algumas dicas de UI/UX que aprendi esta semana. O design é muito mais do que apenas fazer algo bonito - é sobre criar experiências memoráveis!",
-      media: [
-        {
-          type: "image",
-          url: Images.Banner2,
-          alt: "UI/UX Design",
-        },
-        {
-          type: "image",
-          url: Images.Banner1,
-          alt: "Design Process",
-        },
-      ],
-      likes: 78,
-      comments: 23,
-      time: "1d",
-      isLiked: true,
-    },
-    {
-      id: 3,
-      author: userData,
-      content:
-        "Hoje foi dia de contribuir com open source! Nada melhor do que retribuir para a comunidade que tanto me ensinou.",
-      media: [],
-      likes: 32,
-      comments: 8,
-      time: "3d",
-      isLiked: false,
-    },
+      likes: 78, comments: 23, time: "1d", tag: "Design" },
+    { id: 3, author: userData,
+      content: "Hoje foi dia de contribuir com open source! Nada melhor do que retribuir para a comunidade que tanto me ensinou. Se você ainda não contribuiu, começa hoje! ✨",
+      media: [], likes: 32, comments: 8, time: "3d", tag: "Open Source" },
   ];
 
-  const allPosts = [...additionalPosts, ...userPosts];
+  const all = [...additionalPosts, ...posts];
 
-  // Ícones SVG
-  const TrashIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <polyline points="3,6 5,6 21,6" />
-    <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2v2" />
-  </svg>
-);
+  const toggleLike  = (id) => setLiked(p  => { const n=new Set(p); n.has(id)?n.delete(id):n.add(id); return n; });
+  const toggleSave  = (id) => setSaved(p  => { const n=new Set(p); n.has(id)?n.delete(id):n.add(id); return n; });
+  const share = (id) => { setToast(id); setTimeout(()=>setToast(null),1800); };
 
-const MoreIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <circle cx="12" cy="12" r="1" />
-    <circle cx="19" cy="12" r="1" />
-    <circle cx="5" cy="12" r="1" />
-  </svg>
-);
-  const HeartIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-    </svg>
-  );
+  /* ── Galeria ─────────────────────────────────────────────── */
+  const Gallery = ({ media }) => {
+    const [idx, setIdx] = useState(0);
+    const [ts,  setTs]  = useState(null);
+    const [te,  setTe]  = useState(null);
+    if (!media?.length) return null;
 
-  const CommentIcon = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
-  );
-
-  // Função para curtir posts
-  const toggleLike = (postId) => {
-    setLikedPosts((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) newSet.delete(postId);
-      else newSet.add(postId);
-      return newSet;
-    });
-  };
-
-const openCommentModal = (postId) => {
-  setCommentModal({ isOpen: true, postId });
-};
-
-  // Componente MediaGallery
-  const MediaGallery = ({ media, postId }) => {
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [touchStart, setTouchStart] = useState(null);
-    const [touchEnd, setTouchEnd] = useState(null);
-
-    if (!media || media.length === 0) return null;
-
-    const nextMedia = () => {
-      setCurrentIndex((prev) => (prev + 1) % media.length);
+    const next = () => setIdx(p => (p+1)%media.length);
+    const prev = () => setIdx(p => (p-1+media.length)%media.length);
+    const onTS = e => { setTe(null); setTs(e.targetTouches[0].clientX); };
+    const onTM = e => setTe(e.targetTouches[0].clientX);
+    const onTE = () => {
+      if (!ts||!te) return;
+      const d = ts - te;
+      if (d >  50 && media.length>1) next();
+      if (d < -50 && media.length>1) prev();
     };
 
-    const prevMedia = () => {
-      setCurrentIndex((prev) => (prev - 1 + media.length) % media.length);
-    };
-
-    const minSwipeDistance = 50;
-
-    const handleTouchStart = (e) => {
-      setTouchEnd(null);
-      setTouchStart(e.targetTouches[0].clientX);
-    };
-
-    const handleTouchMove = (e) => {
-      setTouchEnd(e.targetTouches[0].clientX);
-    };
-
-    const handleTouchEnd = () => {
-      if (!touchStart || !touchEnd) return;
-
-      const distance = touchStart - touchEnd;
-      const isLeftSwipe = distance > minSwipeDistance;
-      const isRightSwipe = distance < -minSwipeDistance;
-
-      if (isLeftSwipe && media.length > 1) {
-        nextMedia();
-      }
-      if (isRightSwipe && media.length > 1) {
-        prevMedia();
-      }
-    };
-
-    const currentMedia = media[currentIndex];
-
+    const cur = media[idx];
     return (
-      <div
-        className="userProfile-postImageContainer"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div
-          className="mediaWrapper"
-          onClick={() => setLightboxImage({ media, currentIndex })}
-        >
-          {currentMedia.type === "image" ? (
-            <img
-              src={currentMedia.url}
-              alt={currentMedia.alt}
-              className="postImage"
-              draggable={false}
-            />
-          ) : (
-            <video
-              src={currentMedia.url}
-              className="userProfile-postVideo"
-              controls
-              onClick={(e) => e.stopPropagation()}
-              onTouchStart={(e) => e.stopPropagation()}
-              onTouchMove={(e) => e.stopPropagation()}
-              onTouchEnd={(e) => e.stopPropagation()}
-            />
-          )}
+      <div className="gallery" onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}>
+        <div className="gallery-stage" onClick={() => setLightbox({ media, idx })}>
+          {cur.type==="image"
+            ? <img src={cur.url} alt={cur.alt} className="gallery-img" draggable={false}/>
+            : <video src={cur.url} className="gallery-img" controls onClick={e=>e.stopPropagation()} onTouchStart={e=>e.stopPropagation()}/>
+          }
+          {media.length>1 && <span className="gallery-badge">{idx+1}/{media.length}</span>}
         </div>
-
-        {media.length > 1 && (
+        {media.length>1 && (
           <>
-            <button className="userProfile-mediaPrev" onClick={prevMedia}>
-              <ChevronLeft />
-            </button>
-            <button className="userProfile-mediaNext" onClick={nextMedia}>
-              <ChevronRight />
-            </button>
-            <div className="userProfile-mediaIndicators">
-              {media.map((_, index) => (
-                <div
-                  key={index}
-                  className={`userProfile-mediaIndicator ${
-                    index === currentIndex ? "active" : ""
-                  }`}
-                  onClick={() => setCurrentIndex(index)}
-                />
-              ))}
+            <button className="gallery-nav gallery-nav--prev" onClick={prev}><ChevronLeft size={16}/></button>
+            <button className="gallery-nav gallery-nav--next" onClick={next}><ChevronRight size={16}/></button>
+            <div className="gallery-dots">
+              {media.map((_,i) => <span key={i} className={`gallery-dot${i===idx?" gallery-dot--on":""}`} onClick={()=>setIdx(i)}/>)}
             </div>
           </>
         )}
@@ -260,283 +89,107 @@ const openCommentModal = (postId) => {
     );
   };
 
-  // Componente Lightbox
+  /* ── Lightbox ────────────────────────────────────────────── */
   const Lightbox = () => {
-    const [currentIndex, setCurrentIndex] = useState(
-      lightboxImage?.currentIndex || 0
-    );
-    const [touchStart, setTouchStart] = useState(null);
-    const [touchEnd, setTouchEnd] = useState(null);
-
-    if (!lightboxImage) return null;
-
-    const { media } = lightboxImage;
-
-    const nextMedia = () => {
-      setCurrentIndex((prev) => (prev + 1) % media.length);
-    };
-
-    const prevMedia = () => {
-      setCurrentIndex((prev) => (prev - 1 + media.length) % media.length);
-    };
-
-    const minSwipeDistance = 50;
-
-    const handleTouchStart = (e) => {
-      setTouchEnd(null);
-      setTouchStart(e.targetTouches[0].clientX);
-    };
-
-    const handleTouchMove = (e) => {
-      setTouchEnd(e.targetTouches[0].clientX);
-    };
-
-    const handleTouchEnd = () => {
-      if (!touchStart || !touchEnd) return;
-
-      const distance = touchStart - touchEnd;
-      const isLeftSwipe = distance > minSwipeDistance;
-      const isRightSwipe = distance < -minSwipeDistance;
-
-      if (isLeftSwipe && media.length > 1) {
-        nextMedia();
-      }
-      if (isRightSwipe && media.length > 1) {
-        prevMedia();
-      }
-    };
-
-    const currentMedia = media[currentIndex];
-
+    const [idx, setIdx] = useState(lightbox?.idx||0);
+    useEffect(() => {
+      const h = e => { if(e.key==="Escape") setLightbox(null); };
+      window.addEventListener("keydown",h);
+      return ()=>window.removeEventListener("keydown",h);
+    },[]);
+    if (!lightbox) return null;
+    const { media } = lightbox;
+    const cur = media[idx];
+    const next = () => setIdx(p=>(p+1)%media.length);
+    const prev = () => setIdx(p=>(p-1+media.length)%media.length);
     return (
-      <div
-        className="userProfile-lightbox"
-        onClick={() => setLightboxImage(null)}
-      >
-        <div
-          className="userProfile-lightboxContent"
-          onClick={(e) => e.stopPropagation()}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <button
-            className="userProfile-lightboxClose"
-            onClick={() => setLightboxImage(null)}
-          >
-            <X />
-          </button>
-
-          {currentMedia.type === "image" ? (
-            <img
-              src={currentMedia.url}
-              alt={currentMedia.alt}
-              className="userProfile-lightboxImage"
-              draggable={false}
-            />
-          ) : (
-            <video
-              src={currentMedia.url}
-              className="userProfile-lightboxVideo"
-              controls
-              onTouchStart={(e) => e.stopPropagation()}
-              onTouchMove={(e) => e.stopPropagation()}
-              onTouchEnd={(e) => e.stopPropagation()}
-            />
-          )}
-
-          {media.length > 1 && (
-            <>
-              <button className="userProfile-lightboxPrev" onClick={prevMedia}>
-                <ChevronLeft />
-              </button>
-              <button className="userProfile-lightboxNext" onClick={nextMedia}>
-                <ChevronRight />
-              </button>
-              <div className="userProfile-lightboxIndicators">
-                {media.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`userProfile-lightboxIndicator ${
-                      index === currentIndex ? "active" : ""
-                    }`}
-                    onClick={() => setCurrentIndex(index)}
-                  />
-                ))}
-              </div>
-            </>
-          )}
+      <div className="lb-overlay" onClick={()=>setLightbox(null)}>
+        <div className="lb-box" onClick={e=>e.stopPropagation()}>
+          <button className="lb-close" onClick={()=>setLightbox(null)}><X size={16}/></button>
+          {cur.type==="image"
+            ? <img src={cur.url} alt={cur.alt} className="lb-media" draggable={false}/>
+            : <video src={cur.url} className="lb-media" controls/>}
+          {media.length>1 && <>
+            <button className="lb-nav lb-nav--prev" onClick={prev}><ChevronLeft size={18}/></button>
+            <button className="lb-nav lb-nav--next" onClick={next}><ChevronRight size={18}/></button>
+            <div className="lb-dots">
+              {media.map((_,i)=><span key={i} className={`lb-dot${i===idx?" lb-dot--on":""}`} onClick={()=>setIdx(i)}/>)}
+            </div>
+          </>}
         </div>
       </div>
     );
   };
 
-  // Componente Modal de Comentários
-  const CommentModal = () => {
-    const [commentText, setCommentText] = useState("");
+  /* ── Modal comentários ───────────────────────────────────── */
+  const CModal = () => {
+    const [txt, setTxt] = useState("");
+    const ref = useRef(null);
+    const { open, id } = commentModal;
 
-    const inputRef = useRef(null);
+    useEffect(()=>{ if(open){ setTxt(""); setTimeout(()=>ref.current?.focus(),60); } },[open]);
+    if(!open) return null;
 
-    const { isOpen } = commentModal;
-
-    useEffect(() => {
-      if (isOpen) {
-        setCommentText("");
-        setTimeout(() => inputRef.current?.focus(), 0);
-      }
-    }, [isOpen]);
-
-    if (!commentModal.isOpen) return null;
-
-    const currentPost = allPosts.find((p) => p.id === commentModal.postId);
-    const postComments = comments[commentModal.postId] || [];
-
-    const addComment = () => {
-      const text = commentText.trim();
-      if (!text) return;
-
-      const comment = {
-        id: Date.now(),
-        text,
-        author: "Você",
-        avatar: Images.PhotoCard || "/default-avatar.jpg",
-        time: "agora",
-      };
-
-      setComments((prev) => ({
-        ...prev,
-        [commentModal.postId]: [...(prev[commentModal.postId] || []), comment],
-      }));
-
-      setCommentText(""); // limpa o textarea
-      inputRef.current?.focus(); // mantém foco
+    const post     = all.find(p=>p.id===id);
+    const list     = comments[id]||[];
+    const addCmt   = () => {
+      const t = txt.trim(); if(!t) return;
+      setComments(p=>({...p,[id]:[...(p[id]||[]),{id:Date.now(),text:t,author:"Você",avatar:Images.PhotoCard,time:"agora"}]}));
+      setTxt(""); ref.current?.focus();
     };
 
     return (
-      <div
-        className="userProfile-commentModal"
-        onClick={() => setCommentModal({ isOpen: false, postId: null })}
-      >
-        <div
-          className="userProfile-commentModalContent"
-          onClick={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          <div className="userProfile-commentModalHeader">
+      <div className="cmodal-overlay" onClick={closeCM}>
+        <div className="cmodal" onClick={e=>e.stopPropagation()} onPointerDown={e=>e.stopPropagation()}>
+          <div className="cmodal-header">
+            <span className="cmodal-pill"/>
             <h3>Comentários</h3>
-            <button
-              className="userProfile-commentModalClose"
-              onClick={() => setCommentModal({ isOpen: false, postId: null })}
-            >
-              <X />
-            </button>
+            <button className="cmodal-x" onClick={closeCM}><X size={15}/></button>
           </div>
 
-          <div className="userProfile-commentModalBody">
-            <div className="userProfile-originalPost">
-              <div className="userProfile-postHeader">
-                <div className="userProfile-postUserAvatar" onClick={UserConta}>
-                  <img
-                    src={currentPost?.author.avatar}
-                    alt={currentPost?.author.name}
-                  />
-                  {currentPost?.author.isOnline && (
-                    <div className="userProfile-onlineStatus"></div>
-                  )}
-                </div>
-                <div className="userProfile-postUserInfo">
-                  <h4 className="userProfile-postUserName">
-                    {currentPost?.author.name}
-                  </h4>
-                  <span className="userProfile-postTime">
-                    {currentPost?.time}
-                  </span>
-                </div>
-                {showFollowButton && (
-                  <button
-                    className={`userProfile-followBtn ${
-                      isFollowing ? "following" : ""
-                    }`}
-                    onClick={toggleFollow}
-                  >
-                    {isFollowing ? <UserCheck /> : <UserPlus />}
-                    <span>{isFollowing ? "Seguindo" : "Seguir"}</span>
-                  </button>
-                )}
-              </div>
-              <p className="userProfile-postText">{currentPost?.content}</p>
+          {/* Post resumido */}
+          <div className="cmodal-origin">
+            <img src={post?.author.avatar} alt="" className="cmodal-origin-av"/>
+            <div>
+              <span className="cmodal-origin-name">{post?.author.name}</span>
+              <p className="cmodal-origin-txt">{post?.content}</p>
             </div>
+          </div>
 
-            <div className="userProfile-commentsList">
-              {postComments.length === 0 ? (
-                <div className="userProfile-noComments">
-                  <p>Seja o primeiro a comentar!</p>
-                </div>
-              ) : (
-                postComments.map((comment) => (
-                  <div key={comment.id} className="userProfile-commentItem">
-                    <div className="userProfile-commentAvatar">
-                      <img src={comment.avatar} alt={comment.author} />
-                    </div>
-                    <div className="userProfile-commentContent">
-                      <div className="userProfile-commentHeader">
-                        <h5 className="userProfile-commentAuthor">
-                          {comment.author}
-                        </h5>
-                        <span className="userProfile-commentTime">
-                          {comment.time}
-                        </span>
+          {/* Lista */}
+          <div className="cmodal-list">
+            {list.length===0
+              ? <p className="cmodal-empty">Nenhum comentário ainda. Começa você! 💬</p>
+              : list.map(c=>(
+                  <div key={c.id} className="cmt-item">
+                    <img src={c.avatar} alt={c.author} className="cmt-av"/>
+                    <div className="cmt-bubble">
+                      <div className="cmt-meta">
+                        <span className="cmt-author">{c.author}</span>
+                        <span className="cmt-time">{c.time}</span>
                       </div>
-                      <p className="userProfile-commentText">{comment.text}</p>
+                      <p className="cmt-txt">{c.text}</p>
                     </div>
                   </div>
                 ))
-              )}
-            </div>
+            }
+          </div>
 
-            <div className="userProfile-addComment">
-              <div className="userProfile-userAvatar">
-                <img
-                  src={Images.PhotoCard || "/default-avatar.jpg"}
-                  alt="Seu avatar"
-                />
-              </div>
-
-              <div className="userProfile-commentInputContainer">
-                <textarea
-                  ref={inputRef}
-                  placeholder="Escreva um comentário..."
-                  className="userProfile-commentInput"
-                  rows={1}
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      addComment();
-                    }
-                  }}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  spellCheck={false}
-                />
-                <button
-                  className="userProfile-sendComment"
-                  onClick={addComment}
-                  disabled={!commentText.trim()}
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                  </svg>
-                </button>
-              </div>
+          {/* Input */}
+          <div className="cmodal-input-row">
+            <img src={Images.PhotoCard} alt="Você" className="cmodal-input-av"/>
+            <div className="cmodal-input-shell">
+              <textarea
+                ref={ref} value={txt}
+                onChange={e=>setTxt(e.target.value)}
+                onKeyDown={e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); addCmt(); } }}
+                placeholder="Escreva um comentário..."
+                className="cmodal-textarea"
+                rows={1}
+              />
+              <button className="cmodal-send" onClick={addCmt} disabled={!txt.trim()}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+              </button>
             </div>
           </div>
         </div>
@@ -544,105 +197,86 @@ const openCommentModal = (postId) => {
     );
   };
 
-  // Return do componente principal
+  /* ── Render ──────────────────────────────────────────────── */
   return (
     <>
-      <div className="userProfile-tabContent">
-        {activeTab === "posts" && (
-          <div className="userProfile-postsContent">
-            {allPosts.map((post) => (
-  <article key={post.id} className="userProfile-postCard">
-                <div className="userProfile-postHeader">
-                  <div className="userProfile-postUserAvatar" onClick={UserConta}>
-                    <img src={post.author.avatar} alt={post.author.name} />
-                    {post.author.isOnline && (
-                      <div className="userProfile-onlineStatus"></div>
-                    )}
-                  </div>
-                  <div className="userProfile-postUserInfo">
-                    <h4 className="userProfile-postUserName">
-                      {post.author.name}
-                    </h4>
-                    <span className="userProfile-postTime">{post.time}</span>
-                  </div>
-                  {showFollowButton && (
-                  <button
-                    className={`userProfile-followBtn ${
-                      isFollowing ? "following" : ""
-                    }`}
-                    onClick={toggleFollow}
-                  >
-                    {isFollowing ? <UserCheck /> : <UserPlus />}
-                    <span>{isFollowing ? "Seguindo" : "Seguir"}</span>
-                  </button>
-                )}
+      {all.map(post => {
+        const isLiked  = liked.has(post.id);
+        const isSaved  = saved.has(post.id);
+        const cCount   = (comments[post.id]||[]).length || post.comments;
+
+        return (
+          <article key={post.id} className="pcard fade-in">
+            {/* Header */}
+            <div className="pcard-header">
+              <div className="pcard-av-wrap" onClick={goProfile}>
+                <img src={post.author.avatar} alt={post.author.name} className="pcard-av"/>
+                {post.author.isOnline && <span className="pcard-dot"/>}
+              </div>
+              <div className="pcard-author" onClick={goProfile}>
+                <div className="pcard-author-top">
+                  <span className="pcard-name">{post.author.name}</span>
+                  {post.tag && <span className="pcard-tag">{post.tag}</span>}
                 </div>
-
-          <p className="userProfile-postText">{post.description}</p>
-
-          {post.media_path && (
-            post.media_type === "image" ? (
-              <img src={post.media_path} alt={post.title} className="postImage" />
-            ) : (
-               <img src="./../../assets/images/banner1.jpg" alt={post.title} className="postImage" />
-              //<video src={post.media_path} className="userProfile-postVideo" controls />
-            )
-          )}
-
-                <div className="userProfile-postActions">
-                  <button
-                    className={`userProfile-actionBtn userProfile-like ${
-                      likedPosts.has(post.id) ? "liked" : ""
-                    }`}
-                    onClick={() => toggleLike(post.id)}
-                  >
-                    <HeartIcon />
-                    <span className="userProfile-actionCount">
-                      {post.likes + (likedPosts.has(post.id) ? 1 : 0)}
-                    </span>
-                  </button>
-                  <button
-                    className="userProfile-actionBtn userProfile-comment"
-                    onClick={() => openCommentModal(post.id)}
-                  >
-                    <CommentIcon />
-                    <span className="userProfile-actionCount">
-                      {(comments[post.id] || []).length || post.comments}
-                    </span>
-                  </button>
+                <div className="pcard-sub">
+                  <span>{post.author.username}</span>
+                  <span className="pcard-sep">·</span>
+                  <span>{post.time}</span>
                 </div>
-              </article>
-            ))}
-          </div>
-        )}
-
-        {activeTab === "media" && (
-          <div className="userProfile-mediaGrid">
-            {userPosts
-              .filter((post) => post.media.length > 0)
-              .map((post) =>
-                post.media.map((media, index) => (
-                  <div
-                    key={`${post.id}-${index}`}
-                    className="userProfile-mediaItem"
-                    onClick={() =>
-                      setLightboxImage({
-                        media: post.media,
-                        currentIndex: index,
-                      })
-                    }
-                  >
-                    <img src={media.url} alt={media.alt} />
-                  </div>
-                ))
+              </div>
+              {showFollowButton && (
+                <button className={`pcard-follow ${following?"pcard-follow--on":""}`} onClick={togFollow}>
+                  {following ? <UserCheck size={13}/> : <UserPlus size={13}/>}
+                  <span>{following?"Seguindo":"Seguir"}</span>
+                </button>
               )}
-          </div>
-        )}
-      </div>
+            </div>
 
-      {/* Modais */}
-      <Lightbox />
-      <CommentModal />
+            {/* Texto */}
+            <p className="pcard-text">{post.content}</p>
+
+            {/* Galeria */}
+            <Gallery media={post.media}/>
+
+            {/* Ações */}
+            <div className="pcard-actions">
+              <div className="pcard-actions-l">
+                {/* Curtir */}
+                <button className={`pcard-btn like-btn${isLiked?" like-btn--on":""}`} onClick={()=>toggleLike(post.id)}>
+                  <svg width="18" height="18" viewBox="0 0 24 24"
+                    fill={isLiked?"currentColor":"none"}
+                    stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                  <span>{post.likes+(isLiked?1:0)}</span>
+                </button>
+
+                {/* Comentar */}
+                <button className="pcard-btn" onClick={()=>openCM(post.id)}>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <span>{cCount}</span>
+                </button>
+
+                {/* Compartilhar */}
+                <button className={`pcard-btn share-btn${toast===post.id?" share-btn--on":""}`} onClick={()=>share(post.id)}>
+                  <Share2 size={16}/>
+                  {toast===post.id && <span className="share-toast">Copiado!</span>}
+                </button>
+              </div>
+
+              {/* Salvar */}
+              <button className={`pcard-btn save-btn${isSaved?" save-btn--on":""}`} onClick={()=>toggleSave(post.id)}>
+                <Bookmark size={16} fill={isSaved?"currentColor":"none"}/>
+              </button>
+            </div>
+          </article>
+        );
+      })}
+
+      <Lightbox/>
+      <CModal/>
     </>
   );
 }

@@ -4,335 +4,214 @@ import "../styles/feed.css";
 import Sidebar from "./componentes/sidebar";
 import MobileHeader from "./componentes/mobileHeader";
 import Card from "./componentes/card";
-import { useNavigate } from "react-router-dom";
 
-export default function Feed({ userId = 1 }) {
-  const [tema, setTema] = useState("escuro");
-  const [postText, setPostText] = useState("");
+const PhotoIcon = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+    <path d="m21 15-5-5L5 21"/>
+  </svg>
+);
+const VideoIcon = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m22 8-6 4 6 4V8z"/><rect x="2" y="6" width="14" height="12" rx="2"/>
+  </svg>
+);
+const IdeaIcon = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2z"/>
+    <path d="M9 21h6M10 18h4"/>
+  </svg>
+);
+const CloseIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
+const PlusIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+);
+
+const highlights = [
+  { id: 0, label: "Adicionar", isAdd: true, avatar: Images.PhotoCard },
+  { id: 1, label: "React",       avatar: Images.PhotoCard,              seen: false },
+  { id: 2, label: "UI/UX",       avatar: Images.DeskCard || Images.PhotoCard, seen: false },
+  { id: 3, label: "Open Source", avatar: Images.Banner1  || Images.PhotoCard, seen: true  },
+  { id: 4, label: "Dev Tips",    avatar: Images.Banner2  || Images.PhotoCard, seen: true  },
+  { id: 5, label: "Projetos",    avatar: Images.PhotoCard,              seen: false },
+  { id: 6, label: "Web3",        avatar: Images.PhotoCard,              seen: true  },
+];
+
+export default function Feed() {
+  const [tema, setTema]                 = useState("escuro");
+  const [postText, setPostText]         = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [activeTab, setActiveTab]       = useState("recentes");
+  const [alertMsg, setAlertMsg]         = useState(null);
+  const [composeOpen, setComposeOpen]   = useState(false);
   const textareaRef = useRef(null);
-  const [activeNavItem, setActiveNavItem] = useState("home");
-  const [feedPosts, setFeedPosts] = useState([]);
-  const [showAlert, setShowAlert] = useState(false);
-  const [showTextAlert, setShowTextAlert] = useState(false);
 
-  const navigate = useNavigate();
+  const toggleTema = () => setTema(p => p === "escuro" ? "claro" : "escuro");
+  const temaClass  = tema === "escuro" ? "escuro-fundo-cinza" : "claro-fundo-bege";
 
-
-
- 
- 
-
-
-
-
-  const toggleTema = () => {
-    setTema((prev) => (prev === "escuro" ? "claro" : "escuro"));
-  };
-
-  const handleNavigation = (item) => {
-    setActiveNavItem(item);
-  };
-
-
-  // Auto-resize textarea
   useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height =
-        textareaRef.current.scrollHeight + "px";
-    }
-  }, [postText]);
+    if (!textareaRef.current) return;
+    textareaRef.current.style.height = "auto";
+    textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
+  }, [postText, composeOpen]);
 
-  const HeartIcon = () => (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-    </svg>
-  );
+  // Trava o scroll do body quando o modal está aberto
+  useEffect(() => {
+    document.body.style.overflow = composeOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [composeOpen]);
 
-  const VideoIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z" />
-    </svg>
-  );
+  const showAlert = (msg) => { setAlertMsg(msg); setTimeout(() => setAlertMsg(null), 2800); };
 
-  const PhotoIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-      <circle cx="9" cy="9" r="2" />
-      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-    </svg>
-  );
-
-  const CommentIcon = () => (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
-  );
-
-  const CloseIcon = () => (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  );
-
-  const ChevronLeftIcon = () => (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <polyline points="15,18 9,12 15,6" />
-    </svg>
-  );
-
-  const ChevronRightIcon = () => (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <polyline points="9,18 15,12 9,6" />
-    </svg>
-  );
-
-
-  async function handlePublishPost() {
-    console.log("Post criado:", postText);
-    console.log("Arquivo:", selectedFiles);
-
+  const closeCompose = () => {
+    setComposeOpen(false);
     setPostText("");
     setSelectedFiles([]);
+    setAlertMsg(null);
   };
 
+  const handlePublish = () => {
+    if (!postText.trim() && selectedFiles.length === 0) { showAlert("Adicione texto ou mídia."); return; }
+    closeCompose();
+  };
+
+  const handleFileChange = (e, type) => {
+    const files = Array.from(e.target.files);
+    if (selectedFiles.length > 0 || files.length > 1) { showAlert("Apenas 1 arquivo por post."); e.target.value = ""; return; }
+    if (type === "video") {
+      const ok = ["video/mp4","video/webm","video/ogg","video/quicktime","video/x-msvideo"];
+      setSelectedFiles(files.filter(f => ok.includes(f.type)));
+    } else { setSelectedFiles(files); }
+    e.target.value = "";
+  };
+
+  const hasContent = postText.trim() || selectedFiles.length > 0;
+
   return (
-    <div
-      id="Feed"
-      className={tema === "escuro" ? "escuro-fundo-cinza" : "claro-fundo-bege"}
-    >
-      {/* Header Mobile */}
-      <MobileHeader tema={tema} toggleTema={toggleTema} title="Ideafy" />
+    <div id="Feed" className={temaClass}>
+      <MobileHeader tema={tema} toggleTema={toggleTema} title="Ideiafy" />
+      <Sidebar tema={tema} toggleTema={toggleTema} />
 
-      {/* Sidebar */}
-      <Sidebar
-        tema={tema}
-        toggleTema={toggleTema}
-        activeItem={activeNavItem}
-        onNavigate={handleNavigation}
-      />
+      <main className="feed-main">
+        <div className="feed-center">
 
-      <div className="create-post-container">
-
-        <div className="create-post-card">
-          {/* Header do post */}
-          <div className="create-post-header">
-            <img
-             
-              className="user-avatar"
-            />
-            <div className="user-info">
-              <span className="user-name">Gustavo</span>
-              <span className="visibility-text">Público</span>
-            </div>
-          </div>
-
-
-          {/* Área de texto */}
-          <div className="create-post-content">
-            <textarea
-              ref={textareaRef}
-              value={postText}
-              onChange={(e) => setPostText(e.target.value)}
-              placeholder="No que você está pensando?"
-              className="post-textarea"
-              rows="1"
-            />
-          </div>
-
-          {/* Preview de arquivos selecionados */}
-          {selectedFiles.length > 0 && (
-            <div className="media-preview">
-              {selectedFiles.map((file, index) => (
-                <div key={index} className="media-preview-item">
-                  {file.type.startsWith('image/') ? (
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt={`Preview ${index + 1}`}
-                      className="preview-image"
-                    />
-                  ) : (
-                    <video
-                      src={URL.createObjectURL(file)}
-                      className="preview-image"
-                      controls
-                      muted
-                    />
-                  )}
-                  <button
-                    onClick={() => {
-                      const newFiles = selectedFiles.filter((_, i) => i !== index);
-                      setSelectedFiles(newFiles);
-                    }}
-                    className="remove-media-btn"
-                  >
-                    <CloseIcon />
-                  </button>
+          {/* Stories */}
+          <section className="stories-bar">
+            {highlights.map(h => h.isAdd ? (
+              <div key={h.id} className="story-item">
+                <div className="story-ring story-ring--add">
+                  <img src={h.avatar} alt="Você" className="story-img" />
+                  <span className="story-plus"><PlusIcon /></span>
                 </div>
-              ))}
+                <span className="story-name">Novo</span>
+              </div>
+            ) : (
+              <div key={h.id} className="story-item">
+                <div className={`story-ring ${h.seen ? "story-ring--seen" : "story-ring--new"}`}>
+                  <img src={h.avatar} alt={h.label} className="story-img" />
+                </div>
+                <span className="story-name">{h.label}</span>
+              </div>
+            ))}
+          </section>
+
+          {/* Barra de criação compacta */}
+          <section className="compose-bar" onClick={() => setComposeOpen(true)}>
+            <img src={Images.PhotoCard} alt="Você" className="compose-bar-av" />
+            <span className="compose-bar-text">No que você está trabalhando?</span>
+            <div className="compose-bar-icons">
+              <span className="compose-bar-icon"><PhotoIcon /></span>
+              <span className="compose-bar-icon"><VideoIcon /></span>
+              <span className="compose-bar-icon"><IdeaIcon /></span>
             </div>
-          )}
+          </section>
 
-          {/* Barra de ações */}
-          <div className="create-post-actions">
-            <div className="media-options">
-              <label className="media-option">
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={(e) => {
-                    const files = Array.from(e.target.files);
+          {/* Tabs */}
+          <nav className="feed-tabs">
+            {[["recentes","Recentes"],["alta","Em alta"],["seguindo","Seguindo"]].map(([k,l]) => (
+              <button key={k} className={`feed-tab ${activeTab===k?"feed-tab--on":""}`} onClick={() => setActiveTab(k)}>
+                {l}
+              </button>
+            ))}
+          </nav>
 
-                    if (selectedFiles.length > 0 || files.length > 1) {
-                      setShowAlert(true);
-                      e.target.value = '';
-                      return;
-                    }
-
-                    setSelectedFiles(files); // Remove o prev => [...prev, ...files]
-                  }}
-                  style={{ display: 'none' }}
-                />
-                <PhotoIcon />
-                <span>Foto</span>
-              </label>
-
-              <label className="media-option">
-                <input
-                  type="file"
-                  multiple
-                  accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-msvideo"
-                  onChange={(e) => {
-                    const files = Array.from(e.target.files);
-
-                    if (selectedFiles.length > 0 || files.length > 1) {
-                      setShowAlert(true);
-                      e.target.value = '';
-                      return;
-                    }
-
-                    const supportedFiles = files.filter(file =>
-                      file.type.startsWith('video/') &&
-                      ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-msvideo'].includes(file.type)
-                    );
-
-                    if (supportedFiles.length !== files.length) {
-                      alert('Alguns arquivos não são suportados. Use MP4, WebM ou OGG.');
-                    }
-
-                    setSelectedFiles(supportedFiles);
-                  }}
-                  style={{ display: 'none' }}
-                />
-                <VideoIcon />
-                <span>Vídeo</span>
-              </label>
-            </div>
-
-            <button
-              className={`post-button ${postText.trim() || selectedFiles.length > 0 ? 'active' : 'disabled'}`}
-              onClick={handlePublishPost}
-            >
-              Publicar
-            </button>
+          {/* Posts */}
+          <div className="feed-stream">
+            <Card />
           </div>
         </div>
-        {/* Alerta de limite de mídia */}
-        {showAlert && (
-          <div className="modern-alert-overlay" onClick={() => setShowAlert(false)}>
-            <div className="modern-alert-container" onClick={(e) => e.stopPropagation()}>
-              <div className="modern-alert-content">
-                <div className="alert-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" fill="rgba(107, 123, 196, 0.1)" stroke="rgba(107, 123, 196, 1)" strokeWidth="2" />
-                    <line x1="12" y1="16" x2="12" y2="12" stroke="rgba(107, 123, 196, 1)" strokeWidth="2" strokeLinecap="round" />
-                    <circle cx="12" cy="8" r="1" fill="rgba(107, 123, 196, 1)" />
-                  </svg>
-                </div>
-                <div className="alert-text">
-                  <h3>Limite de mídia atingido</h3>
-                  <p>Por enquanto, você pode adicionar apenas 1 arquivo de mídia por post. Estamos trabalhando para melhorar essa funcionalidade!</p>
-                </div>
-                <button className="alert-close-btn" onClick={() => setShowAlert(false)}>
-                  <CloseIcon />
-                </button>
-              </div>
-              <div className="alert-progress-bar"></div>
-            </div>
-          </div>
-        )}
-        {/* Alerta de texto obrigatório */}
-        {showTextAlert && (
-          <div className="modern-alert-overlay" onClick={() => setShowTextAlert(false)}>
-            <div className="modern-alert-container" onClick={(e) => e.stopPropagation()}>
-              <div className="modern-alert-content">
-                <div className="alert-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" fill="rgba(239, 68, 68, 0.1)" stroke="rgba(239, 68, 68, 1)" strokeWidth="2" />
-                    <line x1="12" y1="16" x2="12" y2="12" stroke="rgba(239, 68, 68, 1)" strokeWidth="2" strokeLinecap="round" />
-                    <circle cx="12" cy="8" r="1" fill="rgba(239, 68, 68, 1)" />
-                  </svg>
-                </div>
-                <div className="alert-text">
-                  <h3>Texto obrigatório</h3>
-                  <p>Você precisa escrever algo no seu post! Conte-nos o que você está pensando.</p>
-                </div>
-                <button className="alert-close-btn" onClick={() => setShowTextAlert(false)}>
-                  <CloseIcon />
-                </button>
-              </div>
-              <div className="alert-progress-bar-red"></div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Conteúdo Principal */}
-      <main className="mainContent">
-
-        {/* Feed de posts */}
-
-        <Card />
       </main>
 
+      {/* Modal de criação de post */}
+      {composeOpen && (
+        <div className="compose-overlay" onClick={closeCompose}>
+          <div className="compose-modal" onClick={e => e.stopPropagation()}>
+            <header className="compose-modal-head">
+              <span className="compose-modal-pill" />
+              <h3>Criar publicação</h3>
+              <button className="compose-modal-x" onClick={closeCompose}><CloseIcon /></button>
+            </header>
+
+            <div className="compose-modal-body">
+              <div className="compose-row">
+                <div className="compose-avatar-box">
+                  <img src={Images.PhotoCard} alt="Você" className="compose-av" />
+                  <span className="compose-dot" />
+                </div>
+                <textarea
+                  ref={textareaRef}
+                  value={postText}
+                  onChange={e => setPostText(e.target.value)}
+                  placeholder="No que você está trabalhando?"
+                  className="compose-area"
+                  rows={1}
+                  autoFocus
+                />
+              </div>
+
+              {selectedFiles.length > 0 && (
+                <div className="compose-previews">
+                  {selectedFiles.map((f, i) => (
+                    <div key={i} className="compose-thumb">
+                      {f.type.startsWith("image/")
+                        ? <img src={URL.createObjectURL(f)} alt="" />
+                        : <video src={URL.createObjectURL(f)} muted />}
+                      <button onClick={() => setSelectedFiles(selectedFiles.filter((_,idx) => idx !== i))} className="compose-thumb-remove"><CloseIcon /></button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {alertMsg && <div className="compose-inline-alert">{alertMsg}</div>}
+            </div>
+
+            <footer className="compose-footer">
+              <div className="compose-tools">
+                <label className="compose-tool-btn">
+                  <input type="file" accept="image/*" onChange={e => handleFileChange(e,"image")} style={{display:"none"}} />
+                  <PhotoIcon /><span>Foto</span>
+                </label>
+                <label className="compose-tool-btn">
+                  <input type="file" accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-msvideo" onChange={e => handleFileChange(e,"video")} style={{display:"none"}} />
+                  <VideoIcon /><span>Vídeo</span>
+                </label>
+                <button className="compose-tool-btn">
+                  <IdeaIcon /><span>Ideia</span>
+                </button>
+              </div>
+              <button className={`compose-post-btn ${hasContent ? "compose-post-btn--active" : ""}`} onClick={handlePublish} disabled={!hasContent}>
+                Publicar
+              </button>
+            </footer>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
