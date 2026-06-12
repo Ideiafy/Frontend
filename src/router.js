@@ -6,9 +6,10 @@ import Register from "./pages/register.js";
 import Feed from "./pages/feed.js";
 import Configuracoes from "./pages/configuracoes.js";
 import Conta from "./pages/conta.js";
-import Desenvolvimento from "./pages/desenvolvimento.js";
 import Card from "./pages/componentes/card.js";
 import UserConta from "./pages/contaUsers.js";
+import Messages from "./pages/messages.js";
+import Notifications from "./pages/notifications.js";
 
 export default function AppRoutes() {
 
@@ -22,8 +23,8 @@ export default function AppRoutes() {
                     <Route path="/cadastro" element={<Register />} />
                     <Route path="/feed" element={<Feed />} />
                     <Route path="/conta" element={<Conta />} />
-                    <Route path="/notificacoes" element={<Desenvolvimento />} />
-                    <Route path="/mensagens" element={<Desenvolvimento />} />
+                    <Route path="/notificacoes" element={<Notifications />} />
+                    <Route path="/mensagens" element={<Messages />} />
                     <Route path="/configuracoes" element={<Configuracoes />} />
                     <Route path="/teste" element={<Card />} />
                     <Route path="/userconta" element={<UserConta />} />

@@ -1,15 +1,16 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "../../styles/mobileHeader.css";
 
 // Componente MobileHeader reutilizável
-export default function MobileHeader({ 
-  tema, 
-  toggleTema, 
+export default function MobileHeader({
+  tema,
+  toggleTema,
   title = "Ideafy",
   showBackButton = false,
   onBackClick,
   rightContent,
-  className = "" 
+  className = "",
+  disableAutoHide = false
 }) {
   
   // Ícones SVG
@@ -30,9 +31,39 @@ export default function MobileHeader({
       <polyline points="15,18 9,12 15,6"/>
     </svg>
   );
+  const [hidden, setHidden] = useState(false);
+
+useEffect(() => {
+  if (disableAutoHide) return;
+
+  let lastScrollY = window.scrollY;
+
+  const handleScroll = () => {
+    const currentScrollY = window.scrollY;
+
+    if (
+      currentScrollY > lastScrollY + 15 &&
+      currentScrollY > 100
+    ) {
+      setHidden(true);
+    } else if (
+      currentScrollY < lastScrollY - 15
+    ) {
+      setHidden(false);
+    }
+
+    lastScrollY = currentScrollY;
+  };
+
+  window.addEventListener("scroll", handleScroll);
+
+  return () => {
+    window.removeEventListener("scroll", handleScroll);
+  };
+}, [disableAutoHide]);
 
   return (
-    <div className={`mobileHeader ${className}`}>
+    <div className={`mobileHeader ${hidden ? "hidden" : ""} ${className}`}>
       <div className="mobileHeaderContent">
         
         {/* Lado Esquerdo - Logo ou Botão de Voltar */}

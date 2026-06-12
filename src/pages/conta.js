@@ -1,351 +1,211 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import Images from "../assets/images";
 import "../styles/conta.css";
 import Sidebar from "./componentes/sidebar";
 import MobileHeader from "./componentes/mobileHeader";
-import { useNavigate } from 'react-router-dom';
-import Card from '../pages/componentes/card';
+import { useNavigate } from "react-router-dom";
+import Card from "../pages/componentes/card";
 
+// ── Ícones ────────────────────────────────────────────────
+const CalendarIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+  </svg>
+);
+
+const EditIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </svg>
+);
+
+const GridIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+  </svg>
+);
+
+const ListIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+  </svg>
+);
+
+const VerifiedIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+  </svg>
+);
 
 export default function UserProfile({ userId = 1 }) {
-  const [tema, setTema] = useState("escuro");
-  const [activeNavItem, setActiveNavItem] = useState("profile");
+  const [tema, setTema]         = useState("escuro");
   const [activeTab, setActiveTab] = useState("posts");
-  const [followedUsers, setFollowedUsers] = useState(new Set());
-  const [likedPosts, setLikedPosts] = useState(new Set());
-  const [isFollowingUser, setIsFollowingUser] = useState(false);
-  const [commentModal, setCommentModal] = useState({ isOpen: false, postId: null });
-  const [comments, setComments] = useState({});
-  const [newComment, setNewComment] = useState('');
-  const navigate = useNavigate();
+  const navigate                = useNavigate();
 
+  const toggleTema = () => setTema(p => p === "escuro" ? "claro" : "escuro");
+  const temaClass  = tema === "escuro" ? "escuro-fundo-cinza" : "claro-fundo-bege";
 
- 
-  const toggleTema = () => {
-    setTema((prev) => (prev === "escuro" ? "claro" : "escuro"));
-  };
-
-  const handleNavigation = (item) => {
-    setActiveNavItem(item);
-  };
-
-  const toggleFollow = (postUserId) => {
-    setFollowedUsers(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(postUserId)) {
-        newSet.delete(postUserId);
-      } else {
-        newSet.add(postUserId);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleLike = (postId) => {
-    setLikedPosts(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) {
-        newSet.delete(postId);
-      } else {
-        newSet.add(postId);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleFollowUser = () => {
-    setIsFollowingUser(prev => !prev);
-  };
-
-  // Mock data do usuário
   const userData = {
     id: userId,
     name: "Lucas Alves",
     username: "@lucasalves",
     bio: "Desenvolvedor Full Stack apaixonado por tecnologia e inovação. Criando soluções que fazem a diferença no mundo digital.",
     avatar: Images.PhotoCard || "/default-avatar.jpg",
-    coverImage: Images.Banner3 || "/default-cover.jpg",
     joinDate: "Março 2022",
     isOnline: true,
     verified: true,
-    stats: {
-      posts: 124,
-      followers: 2847,
-      following: 892
-    }
+    location: "São Paulo, BR",
+    website: "lucasalves.dev",
+    stats: { posts: 124, followers: 2847, following: 892 },
   };
 
-  // Posts do usuário
   const userPosts = [
     {
       id: 1,
-      author: userData,
-      content: "Acabei de finalizar um projeto incrível usando React e Node.js! A sensação de ver tudo funcionando perfeitamente é indescritível. 🚀",
-      media: [
-        {
-          type: "image",
-          url: Images.DeskCard || "/default-post.jpg",
-          alt: "Projeto finalizado"
-        }
-      ],
-      likes: 45,
-      comments: 12,
-      time: "2h",
-      isLiked: false
+      media: [{ url: Images.DeskCard, alt: "Projeto" }],
     },
     {
       id: 2,
-      author: userData,
-      content: "Compartilhando algumas dicas de UI/UX que aprendi esta semana. O design é muito mais do que apenas fazer algo bonito - é sobre criar experiências memoráveis!",
-      media: [
-        {
-          type: "image",
-          url: Images.Banner2,
-          alt: "UI/UX Design"
-        },
-        {
-          type: "image",
-          url: Images.Banner1,
-          alt: "Design Process"
-        }
-      ],
-      likes: 78,
-      comments: 23,
-      time: "1d",
-      isLiked: true
+      media: [{ url: Images.Banner2, alt: "Design" }, { url: Images.Banner1, alt: "Process" }],
     },
-    {
-      id: 3,
-      author: userData,
-      content: "Hoje foi dia de contribuir com open source! Nada melhor do que retribuir para a comunidade que tanto me ensinou.",
-      media: [],
-      likes: 32,
-      comments: 8,
-      time: "3d",
-      isLiked: false
-    }
+    { id: 3, media: [] },
   ];
 
-  // Modal e componentes do feed original
-  const openCommentModal = (postId) => {
-    setCommentModal({ isOpen: true, postId });
-    setNewComment('');
-  };
-
-  const closeCommentModal = () => {
-    setCommentModal({ isOpen: false, postId: null });
-    setNewComment('');
-  };
-
-  const addComment = () => {
-    if (!newComment.trim()) return;
-
-    const postId = commentModal.postId;
-    const comment = {
-      id: Date.now(),
-      text: newComment.trim(),
-      author: 'Você',
-      avatar: Images.PhotoCard || "/default-avatar.jpg",
-      time: 'agora'
-    };
-
-    setComments(prev => ({
-      ...prev,
-      [postId]: [...(prev[postId] || []), comment]
-    }));
-
-    setNewComment('');
-  };
-
-  // Componentes auxiliares (copiados do feed original)
-  const HeartIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-    </svg>
-  );
-
-  const CommentIcon = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
-  );
-
-  const CloseIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  );
-
-  const ChevronLeftIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <polyline points="15,18 9,12 15,6" />
-    </svg>
-  );
-
-  const ChevronRightIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <polyline points="9,18 15,12 9,6" />
-    </svg>
-  );
-
-
-
-  const CalendarIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-      <line x1="16" y1="2" x2="16" y2="6" />
-      <line x1="8" y1="2" x2="8" y2="6" />
-      <line x1="3" y1="10" x2="21" y2="10" />
-    </svg>
-  );
-  const CameraIcon = () => (
-  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-    <circle cx="12" cy="13" r="4"/>
-  </svg>
-);
-
-  const getProfileImage = (userAvatar) => {
-  // Se o usuário não tem avatar ou está vazio/nulo, retorna a imagem padrão
-  if (!userAvatar || userAvatar.trim() === '') {
-    return Images.PhotoCard || "/default-avatar.jpg"; // ou qualquer imagem padrão que você tenha
-  }
-  return userAvatar;
-};
-
+  const mediaItems = userPosts
+    .filter(p => p.media?.length > 0)
+    .flatMap(p => p.media.map((m, i) => ({ id: `${p.id}-${i}`, ...m })));
 
   return (
-    <div id="UserProfile" className={tema === "escuro" ? "escuro-fundo-cinza" : "claro-fundo-bege"}>
-      {/* Header Mobile - mantendo "Ideiafy" fixo */}
-      <MobileHeader tema={tema} toggleTema={toggleTema} title="Ideiafy" />
+    <div id="UserProfile" className={temaClass}>
+      <MobileHeader tema={tema} toggleTema={toggleTema} title="Perfil" disableAutoHide={true} />
+      <Sidebar tema={tema} toggleTema={toggleTema} activeItem="account" />
 
-      {/* Sidebar */}
-      <Sidebar
-        tema={tema}
-        toggleTema={toggleTema}
-        activeItem={'account'}
-        onNavigate={handleNavigation}
-      />
+      <main className="up-main">
+        <div className="up-wrap">
 
-      {/* Conteúdo Principal */}
-      <main className="userProfile-mainContent">
-        {/* Cover e Avatar - Banner atrás da foto */}
-        <div className="userProfile-header">
-  {/* Avatar centralizado no topo */}
-  <div className="userProfile-avatarContainer">
-    <img src={userData.avatar} alt={userData.name} className="userProfile-avatar" />
-    {userData.isOnline && <div className="userProfile-onlineStatus"></div>}
-  </div>
-  
-  <div className="userProfile-info">
-    <div className="userProfile-details">
-      <div className="userProfile-nameSection">
-        <h1 className="userProfile-name">
-          {userData.name}
-        </h1>
-        <span className="userProfile-username">{userData.username}</span>
-      </div>
-      
-      <button 
-  className="userProfile-settingsBtn"
-  onClick={() => {
-    navigate('/configuracoes');
-    console.log('Navegar para configurações');
-  }}
->
-  Editar Perfil
-</button>
-    </div>
-  </div>
-</div>
-
-        {/* Bio e informações */}
-        <div className="userProfile-bio">
-          <p className="userProfile-bioText">{userData.bio}</p>
-
-          <div className="userProfile-meta">
-            <div className="userProfile-metaItem">
-              <CalendarIcon />
-              <span>Entrou em {userData.joinDate}</span>
+          {/* ── Header estilo GitHub ── */}
+          <header className="up-header">
+            {/* Coluna esquerda: avatar */}
+            <div className="up-avatar-col">
+              <div className="up-avatar-ring">
+                <img src={userData.avatar} alt={userData.name} className="up-avatar" />
+                {userData.isOnline && <span className="up-online-dot" />}
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Estatísticas */}
-        <div className="userProfile-stats">
-          <div className="userProfile-statItem">
-            <span className="userProfile-statNumber">{userData.stats.posts}</span>
-            <span className="userProfile-statLabel">Posts</span>
-          </div>
-          <div className="userProfile-statItem">
-            <span className="userProfile-statNumber">{userData.stats.followers.toLocaleString()}</span>
-            <span className="userProfile-statLabel">Seguidores</span>
-          </div>
-          <div className="userProfile-statItem">
-            <span className="userProfile-statNumber">{userData.stats.following}</span>
-            <span className="userProfile-statLabel">Seguindo</span>
-          </div>
-        </div>
+            {/* Coluna direita: infos */}
+            <div className="up-info-col">
+              <div className="up-name-row">
+                <h1 className="up-name">{userData.name}</h1>
+                {userData.verified && (
+                  <span className="up-verified" title="Verificado">
+                    <VerifiedIcon />
+                  </span>
+                )}
+                <span className="up-username">{userData.username}</span>
+              </div>
 
-        {/* Navegação por abas - Removido "Curtidas" */}
-        <div className="userProfile-tabs">
-          <button
-            className={`userProfile-tabButton ${activeTab === 'posts' ? 'active' : ''}`}
-            onClick={() => setActiveTab('posts')}
-          >
-            Posts
-          </button>
-          <button
-            className={`userProfile-tabButton ${activeTab === 'media' ? 'active' : ''}`}
-            onClick={() => setActiveTab('media')}
-          >
-            Mídia
-          </button>
-        </div>
+              <p className="up-bio">{userData.bio}</p>
 
-        {/* Conteúdo das abas */}
-<div className="userProfile-tabContent">
-  {activeTab === 'posts' && (
-    <div className="userProfile-postsContent">
-        <Card/>
-        {/* <div className="userProfile-emptyState">
-          Nenhum post ainda
-        </div> */}
-    </div>
-  )}
-  
-  {activeTab === 'media' && (
-    <div className="userProfile-mediaGrid">
-      {(() => {
-        const mediaItems = userPosts
-          .filter(post => post.media && post.media.length > 0)
-          .flatMap(post => 
-            post.media.map((media, index) => ({
-              id: `${post.id}-${index}`,
-              url: media.url,
-              alt: media.alt
-            }))
-          );
+              <div className="up-meta-row">
+                <span className="up-meta-item">
+                  <CalendarIcon />
+                  Entrou em {userData.joinDate}
+                </span>
+                {userData.location && (
+                  <span className="up-meta-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    {userData.location}
+                  </span>
+                )}
+                {userData.website && (
+                  <span className="up-meta-item up-meta-link">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    {userData.website}
+                  </span>
+                )}
+              </div>
 
-                return mediaItems.length > 0 ? (
-                  mediaItems.map(media => (
-                    <div key={media.id} className="userProfile-mediaItem">
-                      <img src={media.url} alt={media.alt} />
+              <div className="up-stats-row">
+                <div className="up-stat">
+                  <span className="up-stat-num">{userData.stats.posts}</span>
+                  <span className="up-stat-lbl">posts</span>
+                </div>
+                <div className="up-stat-divider" />
+                <div className="up-stat">
+                  <span className="up-stat-num">{userData.stats.followers.toLocaleString()}</span>
+                  <span className="up-stat-lbl">seguidores</span>
+                </div>
+                <div className="up-stat-divider" />
+                <div className="up-stat">
+                  <span className="up-stat-num">{userData.stats.following}</span>
+                  <span className="up-stat-lbl">seguindo</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Botão editar (canto superior direito) */}
+            <button
+              className="up-edit-btn"
+              onClick={() => navigate("/configuracoes")}
+            >
+              <EditIcon />
+              Editar perfil
+            </button>
+          </header>
+
+          {/* ── Divisor ── */}
+          <div className="up-divider" />
+
+          {/* ── Abas ── */}
+          <div className="up-tabs">
+            <button
+              className={`up-tab ${activeTab === "posts" ? "up-tab--active" : ""}`}
+              onClick={() => setActiveTab("posts")}
+            >
+              <ListIcon />
+              Posts
+            </button>
+            <button
+              className={`up-tab ${activeTab === "media" ? "up-tab--active" : ""}`}
+              onClick={() => setActiveTab("media")}
+            >
+              <GridIcon />
+              Mídia
+            </button>
+          </div>
+
+          {/* ── Conteúdo ── */}
+          <div className="up-content">
+            {activeTab === "posts" && (
+              <div className="up-posts">
+                <Card />
+              </div>
+            )}
+
+            {activeTab === "media" && (
+              <div className="up-media-grid">
+                {mediaItems.length > 0 ? (
+                  mediaItems.map(m => (
+                    <div key={m.id} className="up-media-item">
+                      <img src={m.url} alt={m.alt} />
+                      <div className="up-media-overlay" />
                     </div>
                   ))
                 ) : (
-                  <div className="userProfile-emptyState">
-                    Nenhuma mídia ainda
+                  <div className="up-empty">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
+                      <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                    <p>Nenhuma mídia ainda</p>
                   </div>
-                );
-              })()}
-            </div>
-          )}
+                )}
+              </div>
+            )}
+          </div>
+
         </div>
       </main>
-
-
     </div>
   );
 }
